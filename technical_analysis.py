@@ -59,7 +59,8 @@ def analyze():
     df = calculate_ema(df)
     df = calculate_rsi(df)
     df = calculate_bollinger(df)
-
+    df = calculate_kdj(df)
+    
     latest = df.iloc[-1]
 
     print("Current Price:", latest["close"])
@@ -68,7 +69,22 @@ def analyze():
     print("RSI:", latest["RSI"])
     print("Upper Band:", latest["Upper"])
     print("Lower Band:", latest["Lower"])
+    print("K:", latest["K"])
+    print("D:", latest["D"])
+    print("J:", latest["J"])
 
 
 if __name__ == "__main__":
     analyze()
+
+def calculate_kdj(df, n=9):
+    low_min = df["low"].rolling(n).min()
+    high_max = df["high"].rolling(n).max()
+
+    rsv = (df["close"] - low_min) / (high_max - low_min) * 100
+
+    df["K"] = rsv.ewm(com=2).mean()
+    df["D"] = df["K"].ewm(com=2).mean()
+    df["J"] = 3 * df["K"] - 2 * df["D"]
+
+    return df
