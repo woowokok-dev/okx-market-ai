@@ -60,6 +60,7 @@ def analyze():
     df = calculate_rsi(df)
     df = calculate_bollinger(df)
     df = calculate_kdj(df)
+    df = calculate_support_resistance(df)
     
     latest = df.iloc[-1]
 
@@ -72,6 +73,8 @@ def analyze():
     print("K:", latest["K"])
     print("D:", latest["D"])
     print("J:", latest["J"])
+    print("Support:", latest["Support"])
+    print("Resistance:", latest["Resistance"])
 
 
 if __name__ == "__main__":
@@ -86,5 +89,14 @@ def calculate_kdj(df, n=9):
     df["K"] = rsv.ewm(com=2).mean()
     df["D"] = df["K"].ewm(com=2).mean()
     df["J"] = 3 * df["K"] - 2 * df["D"]
+
+    return df
+
+def calculate_support_resistance(df, window=20):
+    support = df["low"].rolling(window).min()
+    resistance = df["high"].rolling(window).max()
+
+    df["Support"] = support
+    df["Resistance"] = resistance
 
     return df
